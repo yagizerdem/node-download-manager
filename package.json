@@ -8,9 +8,11 @@
     "build": "tsc",
     "test": "vitest",
     "dev": "nodemon --watch src --ext ts,tsx --ignore dist --exec \"npm run build && cross-env ELECTRON_ENV=development electron .\"",
-    "start": "cross-env ELECTRON_ENV=production electron ."
+    "start": "cross-env ELECTRON_ENV=production electron .",
+    "rebuild-sqlite": ".\\node_modules\\.bin\\electron-rebuild.cmd -f -w sqlite3"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.2.0",
     "@types/mime-types": "^3.0.1",
     "cross-env": "^10.1.0",
     "nodemon": "^3.1.14",
@@ -20,6 +22,8 @@
   "dependencies": {
     "content-disposition": "^3.0.0",
     "electron": "^44.1.1",
-    "mime-types": "^3.0.2"
+    "knex": "^3.3.0",
+    "mime-types": "^3.0.2",
+    "sqlite3": "^6.0.1"
   }
 }
