@@ -1,4 +1,4 @@
-import HttpStatusCode from "./http-status-code";
+import HttpStatusCode from "./http-status-code.ts";
 
 // retry.ts — full-jitter exponential backoff with deadline + abort
 export class NonRetryableError extends Error {

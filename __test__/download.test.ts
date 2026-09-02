@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from "vitest";
-import { getRemoteFileAsync } from "../download";
+import { getRemoteFileAsync } from "../src/download.ts";
 import path from "path";
 import fs from "fs";
 

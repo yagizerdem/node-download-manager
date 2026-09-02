@@ -3,7 +3,7 @@ import https from "https";
 import fs from "fs";
 import { pipeline } from "node:stream/promises";
 import path from "node:path";
-import contentDisposition from "content-disposition";
+import { parse as contentDispositionParse } from "content-disposition";
 import {
   extension as extensionFromMime,
   lookup as lookupMimeType,
@@ -106,7 +106,7 @@ export function extractFileExtension(
 
   if (typeof dispositionHeader === "string") {
     try {
-      const disposition = contentDisposition.parse(dispositionHeader);
+      const disposition = contentDispositionParse(dispositionHeader);
       const filename = disposition.parameters.filename;
 
       if (filename) {

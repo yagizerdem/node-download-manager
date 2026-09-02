@@ -2,14 +2,18 @@
   "name": "download-manager",
   "version": "1.0.0",
   "description": "",
-  "type": "commonjs",
-  "main": "index.js",
+  "type": "module",
+  "main": "./dist/app.js",
   "scripts": {
     "build": "tsc",
-    "test": "vitest"
+    "test": "vitest",
+    "dev": "nodemon --watch src --ext ts,tsx --ignore dist --exec \"npm run build && cross-env ELECTRON_ENV=development electron .\"",
+    "start": "cross-env ELECTRON_ENV=production electron ."
   },
   "devDependencies": {
     "@types/mime-types": "^3.0.1",
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.1.14",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11"
   },
