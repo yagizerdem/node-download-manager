@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Vite",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["exec", "vite", "--configLoader", "bundle"],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "experimentalNetworking": "off",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**",
+        "**/node_modules/.vite-temp/**"
+      ]
+    }
+  ]
+}
