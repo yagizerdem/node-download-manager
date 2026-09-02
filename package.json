@@ -6,12 +6,16 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "devDependencies": {
-    "typescript": "^7.0.2"
+    "@types/mime-types": "^3.0.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   },
   "dependencies": {
-    "electron": "^44.1.1"
+    "content-disposition": "^3.0.0",
+    "electron": "^44.1.1",
+    "mime-types": "^3.0.2"
   }
 }
