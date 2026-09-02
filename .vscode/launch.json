@@ -2,19 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "chrome",
       "request": "launch",
-      "name": "Vite",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["exec", "vite", "--configLoader", "bundle"],
-      "console": "integratedTerminal",
-      "sourceMaps": true,
-      "experimentalNetworking": "off",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**",
-        "**/node_modules/.vite-temp/**"
-      ]
+      "name": "Frontend",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/frontend"
     }
   ]
 }

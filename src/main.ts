@@ -18,7 +18,11 @@ export default class Main {
   private static onReady() {
     Main.mainWindow = new Main.BrowserWindow({ width: 800, height: 600 });
     if (Main.mainWindow) {
-      Main.mainWindow.loadURL("file://" + __dirname + "/index.html");
+      if (process.env.ELECTRON_ENV === "development") {
+        Main.mainWindow.loadURL("http://localhost:3000");
+      } else {
+        Main.mainWindow.loadURL("file://" + import.meta.url + "/index.html");
+      }
       Main.mainWindow.on("closed", Main.onClose);
     }
   }
