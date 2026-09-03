@@ -1,3 +1,5 @@
+import { AppProvider } from "./app-provider";
+import { DownloadProvider } from "./download-provider";
 import { ThemeProvider } from "./theme-provider";
 
 type BaseProviderProps = {
@@ -5,5 +7,11 @@ type BaseProviderProps = {
 };
 
 export function BaseProvider({ children }: BaseProviderProps) {
-  return <ThemeProvider>{children}</ThemeProvider>;
+  return (
+    <ThemeProvider>
+      <AppProvider>
+        <DownloadProvider>{children}</DownloadProvider>
+      </AppProvider>
+    </ThemeProvider>
+  );
 }

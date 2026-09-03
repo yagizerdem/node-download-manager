@@ -1,4 +1,10 @@
-import { createContext, useContext, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  type SetStateAction,
+  type Dispatch,
+} from "react";
 
 type AppProviderProps = {
   children: React.ReactNode;
@@ -6,7 +12,7 @@ type AppProviderProps = {
 
 type AppProviderState = {
   isLoading: boolean;
-  setIsLoading: (isLoading: boolean) => void;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
 
 const initialState: AppProviderState = {
@@ -17,7 +23,7 @@ const initialState: AppProviderState = {
 const AppProviderContext = createContext<AppProviderState>(initialState);
 
 export function AppProvider({ children, ...props }: AppProviderProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(initialState.isLoading);
 
   const value = {
     isLoading,
