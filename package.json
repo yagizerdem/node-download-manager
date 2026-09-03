@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "./dist/app.js",
+  "main": "./dist/src/app.js",
   "scripts": {
     "build": "tsc",
     "test": "vitest",
-    "dev": "nodemon --watch src --ext ts,tsx --ignore dist --exec \"npm run build && cross-env ELECTRON_ENV=development electron .\"",
+    "dev": "nodemon --watch src --ext ts,tsx,cts --ignore dist --exec \"npm run build && cross-env ELECTRON_ENV=development electron .\"",
     "start": "cross-env ELECTRON_ENV=production electron .",
     "rebuild-sqlite": ".\\node_modules\\.bin\\electron-rebuild.cmd -f -w sqlite3"
   },

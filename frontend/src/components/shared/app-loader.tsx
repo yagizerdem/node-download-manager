@@ -3,10 +3,15 @@ import { cn } from "@/lib/utils";
 
 interface AppLoaderProps {
   visible: boolean;
+  showLoadingText: boolean;
   className?: string;
 }
 
-export function AppLoader({ visible, className }: AppLoaderProps) {
+export function AppLoader({
+  visible,
+  className,
+  showLoadingText = true,
+}: AppLoaderProps) {
   if (!visible) return null;
 
   return (
@@ -20,7 +25,7 @@ export function AppLoader({ visible, className }: AppLoaderProps) {
       aria-live="polite"
       aria-label="Loading"
     >
-      <span className="sr-only">Loading...</span>
+      {showLoadingText && <span className="sr-only">Loading...</span>}
     </div>
   );
 }

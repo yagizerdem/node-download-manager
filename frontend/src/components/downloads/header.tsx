@@ -4,9 +4,12 @@ import {
   PlusIcon,
   SearchIcon,
   SettingsIcon,
+  MinusIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDownload } from "@/provider/download-provider";
+import { AppLoader } from "../shared/app-loader";
 
 interface DownloadsHeaderProps {
   downloadSpeed?: string;
@@ -17,12 +20,13 @@ interface DownloadsHeaderProps {
 }
 
 export default function DownloadsHeader({
-  downloadSpeed = "4.5 MB/s",
   onSearchChange,
   onStorageClick,
   onSettingsClick,
   onNewDownload,
 }: DownloadsHeaderProps) {
+  const { downloadSpeed, isCalculatingDownloadSpeed } = useDownload();
+
   return (
     <header
       aria-label="Download controls"
@@ -51,9 +55,20 @@ export default function DownloadsHeader({
             aria-hidden="true"
             className="size-5 text-slate-500 dark:text-muted-foreground"
           />
-          <span className="whitespace-nowrap text-sm font-semibold text-blue-600 tabular-nums dark:text-blue-400">
-            {downloadSpeed}
-          </span>
+          {downloadSpeed === -1 && (
+            <span className="whitespace-nowrap text-sm font-semibold text-red-600 tabular-nums dark:text-red-400">
+              <MinusIcon className="size-4" />
+            </span>
+          )}
+          {downloadSpeed !== -1 && (
+            <span className="whitespace-nowrap text-sm font-semibold text-blue-600 tabular-nums dark:text-blue-400">
+              {downloadSpeed}
+            </span>
+          )}
+
+          {isCalculatingDownloadSpeed && (
+            <AppLoader showLoadingText={false} visible={true} />
+          )}
         </div>
 
         <span
