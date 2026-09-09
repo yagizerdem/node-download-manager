@@ -10,6 +10,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import Main from "./main.ts";
 import healthCheckController from "./healt-controller.ts";
 import speedTestController from "./speed-test-controller.ts";
+import downloadController from "./downlaod-controller.ts";
 
 ensureDirExists(APP_DATA_DIR);
 ensureDirExists(DOWNLOADS_DIR);
@@ -29,6 +30,8 @@ app.whenReady().then(() => {
     "health-check",
     healthCheckController.healthCheck.bind(healthCheckController),
   );
+
+  // speed test controller
   ipcMain.handle(
     "speedTest:start",
     speedTestController.startSpeedTest.bind(speedTestController),
@@ -36,5 +39,23 @@ app.whenReady().then(() => {
   ipcMain.handle(
     "speedTest:startAsync",
     speedTestController.startSpeedTestAsync.bind(speedTestController),
+  );
+
+  // downloads contorller
+  ipcMain.handle(
+    "download:getRemoteFileAsync",
+    (
+      event,
+      file: string,
+      url: string,
+      fileUid: string,
+      downloadsDir?: string,
+    ) =>
+      downloadController.getRemoteFileAsync({
+        file,
+        url,
+        downloadsDir,
+        fileUid,
+      }),
   );
 });

@@ -5,3 +5,13 @@ export interface Response<T> {
   code: ResponseCode;
   data?: T;
 }
+
+export interface DownloadProgress {
+  file: string;
+  baseDir: string;
+  absoluteFilePath: string;
+  downloadedBytes: number;
+  totalBytes: number;
+  totalMegabytes: number;
+  fileUid: string;
+}

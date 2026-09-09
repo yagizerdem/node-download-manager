@@ -1,4 +1,4 @@
-import { Response } from "../../shared/response.ts";
+import { Response, DownloadProgress } from "../../shared/response.ts";
 
 export {};
 
@@ -11,6 +11,17 @@ declare global {
       startSpeedTest: () => Promise<void>;
       onReceiveData: (data: number) => void;
       startSpeedTestAsync: () => Promise<Response<{ mbps: number }>>;
+    };
+    download: {
+      getRemoteFileAsync: (
+        file: string,
+        url: string,
+        fileUid: string,
+        downloadsDir?: string | undefined,
+      ) => Promise<Response<DownloadProgress>>;
+      onProgress: (
+        callback: (progress: Response<DownloadProgress>) => void,
+      ) => () => void;
     };
   }
 }

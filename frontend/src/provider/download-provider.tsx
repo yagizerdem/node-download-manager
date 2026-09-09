@@ -5,7 +5,6 @@ import {
   type SetStateAction,
   type Dispatch,
   useEffect,
-  useRef,
 } from "react";
 
 type DownloadProviderProps = {
@@ -17,6 +16,16 @@ type DownloadProviderState = {
   setDownloadSpeed: Dispatch<SetStateAction<number>>;
   isCalculatingDownloadSpeed: boolean;
   setIsCalculatingDownloadSpeed: Dispatch<SetStateAction<boolean>>;
+  activeDownloads: Record<string, DownloadStatus>;
+  setActiveDownloads: Dispatch<SetStateAction<Record<string, DownloadStatus>>>;
+};
+
+export type DownloadStatus = {
+  total: number;
+  downloaded: number;
+  progress: number;
+  fileUid: string;
+  fileName: string;
 };
 
 const initialState: DownloadProviderState = {
@@ -24,6 +33,8 @@ const initialState: DownloadProviderState = {
   setDownloadSpeed: () => null,
   isCalculatingDownloadSpeed: false,
   setIsCalculatingDownloadSpeed: () => null,
+  activeDownloads: {},
+  setActiveDownloads: () => null,
 };
 
 const DownloadProviderContext =
@@ -39,29 +50,34 @@ export function DownloadProvider({
   const [isCalculatingDownloadSpeed, setIsCalculatingDownloadSpeed] = useState(
     initialState.isCalculatingDownloadSpeed,
   );
+  const [activeDownloads, setActiveDownloads] = useState<
+    Record<string, DownloadStatus>
+  >({});
 
   const value = {
     downloadSpeed,
     setDownloadSpeed,
     isCalculatingDownloadSpeed,
     setIsCalculatingDownloadSpeed,
+    activeDownloads,
+    setActiveDownloads,
   };
 
   useEffect(() => {
-    async function helper() {
-      try {
-        setIsCalculatingDownloadSpeed(true);
-        window.speedTest.startSpeedTest();
-        const response = await window.speedTest.startSpeedTestAsync();
-        if (response.success && response.data) {
-          setDownloadSpeed(response.data.mbps);
-        } else {
-          setDownloadSpeed(-1);
-        }
-      } finally {
-        setIsCalculatingDownloadSpeed(false);
-      }
-    }
+    // async function helper() {
+    //   try {
+    //     setIsCalculatingDownloadSpeed(true);
+    //     window.speedTest.startSpeedTest();
+    //     const response = await window.speedTest.startSpeedTestAsync();
+    //     if (response.success && response.data) {
+    //       setDownloadSpeed(response.data.mbps);
+    //     } else {
+    //       setDownloadSpeed(-1);
+    //     }
+    //   } finally {
+    //     setIsCalculatingDownloadSpeed(false);
+    //   }
+    // }
 
     const intervalId = setInterval(async () => {
       // await helper();

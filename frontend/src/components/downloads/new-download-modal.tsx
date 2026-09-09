@@ -14,7 +14,8 @@ import { XIcon } from "lucide-react";
 
 export interface NewDownloadValues {
   url: string;
-  fileName: string;
+  fileName?: string;
+  id: string;
 }
 
 interface NewDownloadModalProps {
@@ -23,11 +24,7 @@ interface NewDownloadModalProps {
   onStart?: (values: NewDownloadValues[]) => void;
 }
 
-type DownloadSection = NewDownloadValues & {
-  id: string;
-};
-
-function createSection(): DownloadSection {
+function createSection(): NewDownloadValues {
   return {
     id: crypto.randomUUID(),
     url: "",
@@ -40,16 +37,17 @@ export default function NewDownloadModal({
   onOpenChange,
   onStart,
 }: NewDownloadModalProps) {
-  const [sections, setSections] = useState<DownloadSection[]>([
+  const [sections, setSections] = useState<NewDownloadValues[]>([
     createSection(),
   ]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onStart?.(
-      sections.map(({ url, fileName }) => ({
+      sections.map(({ url, fileName, id }) => ({
         url,
         fileName,
+        id,
       })),
     );
     onOpenChange(false);
@@ -124,7 +122,7 @@ export default function NewDownloadModal({
 }
 
 interface SectionProps {
-  section: DownloadSection;
+  section: NewDownloadValues;
   index: number;
   onChange: (id: string, field: keyof NewDownloadValues, value: string) => void;
   onRemove: (id: string) => void;
@@ -152,7 +150,9 @@ function Section({ section, index, onChange, onRemove }: SectionProps) {
       </Button>
 
       <Field>
-        <FieldLabel htmlFor={urlInputId}>URL</FieldLabel>
+        <FieldLabel htmlFor={urlInputId}>
+          <b>URL</b>
+        </FieldLabel>
         <Input
           id={urlInputId}
           name={`downloads.${index}.url`}
@@ -166,7 +166,9 @@ function Section({ section, index, onChange, onRemove }: SectionProps) {
       </Field>
 
       <Field>
-        <FieldLabel htmlFor={fileNameInputId}>File name</FieldLabel>
+        <FieldLabel htmlFor={fileNameInputId}>
+          <b>File name</b> (optional)
+        </FieldLabel>
         <Input
           id={fileNameInputId}
           name={`downloads.${index}.fileName`}
@@ -176,7 +178,6 @@ function Section({ section, index, onChange, onRemove }: SectionProps) {
           onChange={(event) =>
             onChange(section.id, "fileName", event.target.value)
           }
-          required
         />
       </Field>
     </FieldGroup>
