@@ -1,4 +1,8 @@
-import { Response, DownloadProgress } from "../../shared/response.ts";
+import {
+  Response,
+  DownloadProgress,
+  DownloadDTO,
+} from "../../shared/response.ts";
 
 export {};
 
@@ -28,6 +32,15 @@ declare global {
       onCompleted: (
         callback: (progress: Response<DownloadProgress>) => void,
       ) => () => void;
+    };
+    db: {
+      insertDownload: (
+        dto: Omit<DownloadDTO, "id" | "created_at" | "updated_at">,
+      ) => Promise<void>;
+      getAll: () => Promise<any[]>;
+      getById: (id: number) => Promise<any>;
+      deleteById: (id: number) => Promise<number>;
+      getPaginated: (offset: number = 0, limit: number = 20) => Promise<any[]>;
     };
   }
 }

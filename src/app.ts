@@ -11,6 +11,7 @@ import Main from "./main.ts";
 import healthCheckController from "./healt-controller.ts";
 import speedTestController from "./speed-test-controller.ts";
 import downloadController from "./downlaod-controller.ts";
+import dbController from "./db-controllrer.ts";
 
 ensureDirExists(APP_DATA_DIR);
 ensureDirExists(DOWNLOADS_DIR);
@@ -57,5 +58,20 @@ app.whenReady().then(() => {
         downloadsDir,
         fileUid,
       }),
+  );
+
+  // database controller
+  ipcMain.handle("db:insertDownload", (event, dto) =>
+    dbController.insertDownload(dto),
+  );
+  ipcMain.handle("db:getAll", dbController.getAll.bind(dbController));
+  ipcMain.handle("db:getById", (event, id: number) => dbController.getById(id));
+  ipcMain.handle("db:deleteById", (event, id: number) =>
+    dbController.deleteById(id),
+  );
+  ipcMain.handle(
+    "db:getPaginated",
+    (event, offset: number = 0, limit: number = 20) =>
+      dbController.getPaginated(offset, limit),
   );
 });

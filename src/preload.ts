@@ -1,5 +1,5 @@
 import electron = require("electron");
-import { Response } from "../shared/response.ts";
+import { Response, DownloadDTO } from "../shared/response.ts";
 
 const { contextBridge, ipcRenderer } = electron;
 
@@ -72,6 +72,19 @@ const downloadApi = {
   },
 };
 
+const dbApi = {
+  insertDownload: (
+    dto: Omit<DownloadDTO, "id" | "created_at" | "updated_at">,
+  ): Promise<void> => ipcRenderer.invoke("db:insertDownload", dto),
+  getAll: (): Promise<any[]> => ipcRenderer.invoke("db:getAll"),
+  getById: (id: number): Promise<any> => ipcRenderer.invoke("db:getById", id),
+  deleteById: (id: number): Promise<number> =>
+    ipcRenderer.invoke("db:deleteById", id),
+  getPaginated: (offset: number = 0, limit: number = 20): Promise<any[]> =>
+    ipcRenderer.invoke("db:getPaginated", offset, limit),
+};
+
 contextBridge.exposeInMainWorld("backend", backendApi);
 contextBridge.exposeInMainWorld("speedTest", speedTestApi);
 contextBridge.exposeInMainWorld("download", downloadApi);
+contextBridge.exposeInMainWorld("db", dbApi);

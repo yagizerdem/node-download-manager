@@ -17,9 +17,7 @@ export interface DownloadProgress {
 }
 
 export type ColorCode =
-  | "black"
-  | "white"
-  | "gray"
+  | "none"
   | "red"
   | "orange"
   | "yellow"
