@@ -15,3 +15,34 @@ export interface DownloadProgress {
   totalMegabytes: number;
   fileUid: string;
 }
+
+export type ColorCode =
+  | "black"
+  | "white"
+  | "gray"
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "blue"
+  | "purple"
+  | "pink"
+  | "brown";
+
+export type Priority = "low" | "medium" | "high";
+
+export interface DownloadDTO {
+  id: number;
+  url: string;
+  file_name: string;
+  mime_type: string;
+  extension: string;
+  root_dir: string;
+  file_size: number;
+  downloaded_at: string | null;
+  marked: boolean;
+  color: ColorCode | null;
+  created_at: string;
+  updated_at: string;
+  priority: Priority | null;
+}

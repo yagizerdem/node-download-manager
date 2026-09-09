@@ -3,6 +3,7 @@ import os from "os";
 import knex from "knex";
 import fs from "fs";
 import fsPromises from "node:fs/promises";
+import type { ColorCode, Priority } from "../shared/response.ts";
 
 const APP_NAME = "node-download-manager";
 
@@ -67,32 +68,18 @@ export const db = knex({
   },
 });
 
-type ColorCode =
-  | "black"
-  | "white"
-  | "gray"
-  | "red"
-  | "orange"
-  | "yellow"
-  | "green"
-  | "blue"
-  | "purple"
-  | "pink"
-  | "brown";
-
-export type Priority = "low" | "medium" | "high";
-
 export async function createDownloadsTable() {
   await db.schema.createTableIfNotExists("downloads", (table) => {
     table.increments("id").primary();
-    // soruce URL of the download
+    // source URL of the download
     table.text("url").notNullable();
 
     table.string("file_name").notNullable();
     table.string("mime_type").notNullable();
-    table.string("file_path").notNullable();
+    table.string("extension").notNullable();
+    table.string("root_dir").notNullable();
     table.bigInteger("file_size").notNullable().defaultTo(0);
-    table.integer("downloaded_at");
+    table.date("downloaded_at").nullable();
     table.boolean("marked").notNullable().defaultTo(false);
     table.enum("color", [
       "red",
@@ -107,6 +94,8 @@ export async function createDownloadsTable() {
       "pink",
       "brown",
     ] as ColorCode[]);
+    table.date("created_at").notNullable().defaultTo(db.fn.now());
+    table.date("updated_at").notNullable().defaultTo(db.fn.now());
     table.enum("priority", ["low", "medium", "high"] as Priority[]);
   });
 
