@@ -101,7 +101,8 @@ export default function DownloadsHeader({
 
         <Button
           onClick={onNewDownload}
-          className="h-10 gap-2 rounded-md bg-blue-600 px-4 font-semibold text-white shadow-sm hover:bg-blue-700 sm:px-5"
+          className="h-10 gap-2 rounded-md bg-stitch-secondary text-stitch-on-secondary
+           px-4 font-semibold  shadow-sm hover:bg-stitch-secondary/90 sm:px-5 cursor-pointer"
         >
           <PlusIcon className="size-5" />
           New Download

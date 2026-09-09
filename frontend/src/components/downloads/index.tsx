@@ -8,6 +8,8 @@ import { toast } from "@components/ui/toast";
 import type { DownloadProgress, Response } from "../../../../shared/response";
 import { useDownload, type DownloadStatus } from "@/provider/download-provider";
 import AppLayout from "@/layouts/app-layout";
+import { Button } from "@components/ui/button";
+import { ChevronUpIcon, DownloadIcon } from "lucide-react";
 
 export default function Page() {
   const [showNewDownload, setShowNewDownload] = useState(false);
@@ -148,6 +150,25 @@ export default function Page() {
           />
         )}
         <div className="flex-1 overflow-auto bg-red-400"></div>
+        {!showActiveDownloadsPanel && (
+          <div className="flex shrink-0 justify-end border-t border-slate-200/80 bg-sidebar px-6 py-2 dark:border-border">
+            <Button
+              onClick={() => setShowActiveDownloadsPanel(true)}
+              className="group h-10 gap-2 rounded-md bg-stitch-secondary text-stitch-on-secondary
+               px-4 font-semibold shadow-sm transition-colors
+               hover:bg-stitch-secondary/90 focus-visible:ring-2 focus-visible:ring-blue-500/50 
+               dark:bg-stitch-secondary dark:text-stitch-on-secondary 
+               dark:hover:bg-stitch-secondary/90 cursor-pointer"
+            >
+              <DownloadIcon aria-hidden="true" className="size-4" />
+              Open downloads
+              <ChevronUpIcon
+                aria-hidden="true"
+                className="size-4 transition-transform group-hover:-translate-y-0.5"
+              />
+            </Button>
+          </div>
+        )}
         {showActiveDownloadsPanel && <ActiveDownloadsPanel />}
       </div>
     </AppLayout>

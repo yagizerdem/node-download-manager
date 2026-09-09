@@ -8,26 +8,44 @@ import { useLayoutEffect, useRef } from "react";
 
 function ActiveDownloadsPanel() {
   const panelRef = useRef<HTMLDivElement>(null);
-  const { activeDownloads } = useDownload();
+  const { activeDownloads, setShowActiveDownloadsPanel } = useDownload();
   const downloads = Object.values(activeDownloads);
 
   useLayoutEffect(() => {
     const context = gsap.context(() => {
       gsap.fromTo(
         panelRef.current,
-        { y: 100 },
-        { y: 0, duration: 0.4, ease: "power2.out" },
+        { yPercent: 100 },
+        { yPercent: 0, duration: 0.4, ease: "power2.out" },
       );
     }, panelRef);
 
     return () => context.revert();
   }, []);
 
+  function handleClosePanel() {
+    gsap.to(panelRef.current, {
+      yPercent: 100,
+      duration: 0.4,
+      ease: "power2.in",
+      onComplete: () => setShowActiveDownloadsPanel(false),
+    });
+  }
+
   return (
     <div
       ref={panelRef}
-      className=" z-50 min-h-20 max-h-40 overflow-y-auto rounded-t-xl  bg-stitch-surface-container-low p-4 text-primary shadow-lg"
+      className=" z-50 min-h-20 max-h-40 overflow-y-auto
+       rounded-t-xl  bg-stitch-surface-container-low text-primary shadow-lg "
     >
+      <div className="flex flex-row justify-end items-center align-middle">
+        <Button
+          className="w-6 h-6 cursor-pointer m-1sd"
+          onMouseUp={() => handleClosePanel()}
+        >
+          <XIcon />
+        </Button>
+      </div>
       <div className="flex flex-col gap-4">
         {downloads.length === 0 ? (
           <p className="text-sm text-muted-foreground">No active downloads.</p>
