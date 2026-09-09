@@ -1,4 +1,4 @@
-import AppLayout from "@/layouts/app-layout";
+import ActiveDownloadsPanel from "./active-dowloads-panel";
 import DownloadsHeader from "./header";
 import { useEffect, useState } from "react";
 import NewDownloadModal, {
@@ -7,10 +7,15 @@ import NewDownloadModal, {
 import { toast } from "@components/ui/toast";
 import type { DownloadProgress, Response } from "../../../../shared/response";
 import { useDownload, type DownloadStatus } from "@/provider/download-provider";
+import AppLayout from "@/layouts/app-layout";
 
 export default function Page() {
   const [showNewDownload, setShowNewDownload] = useState(false);
-  const { setActiveDownloads } = useDownload();
+  const {
+    setActiveDownloads,
+    setShowActiveDownloadsPanel,
+    showActiveDownloadsPanel,
+  } = useDownload();
 
   async function handleStart(values: NewDownloadValues[]) {
     for (const value of values) {
@@ -28,14 +33,6 @@ export default function Page() {
       }
     }
 
-    for (const value of values) {
-      await window.download.getRemoteFileAsync(
-        value.fileName!,
-        value.url,
-        value.id,
-      );
-    }
-
     const dowloadStatusMap = values.reduce(
       (acc, value) => {
         const progress: DownloadStatus = {
@@ -44,6 +41,8 @@ export default function Page() {
           progress: 0,
           fileUid: value.id,
           fileName: value.fileName!,
+          fileBaseDir: "",
+          status: "started",
         };
         acc[value.id] = progress;
         return acc;
@@ -51,28 +50,106 @@ export default function Page() {
       {} as Record<string, DownloadStatus>,
     );
     setActiveDownloads(dowloadStatusMap);
+    setShowActiveDownloadsPanel(true);
+
+    for (const value of values) {
+      // send request without awaiting
+      window.download.getRemoteFileAsync(value.fileName!, value.url, value.id);
+    }
   }
 
+  // on progress update from the download manager
   useEffect(() => {
     const unsubscribe = window.download.onProgress(
       (response: Response<DownloadProgress>) => {
-        console.log(response);
+        setActiveDownloads((prev) => {
+          const updated = { ...prev };
+          updated[response.data!.fileUid] = {
+            total: response.data!.totalBytes,
+            downloaded: response.data!.downloadedBytes,
+            progress:
+              response.data!.totalBytes > 0
+                ? response.data!.downloadedBytes / response.data!.totalBytes
+                : 0,
+            fileUid: response.data!.fileUid,
+            fileName: response.data!.file,
+            fileBaseDir: response.data!.baseDir,
+            status: "in_progress",
+          };
+          return updated;
+        });
       },
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [setActiveDownloads]);
+
+  // on initial download information from the download manager
+  useEffect(() => {
+    const unsubscribeInitial = window.download.onInitial(
+      (response: Response<DownloadProgress>) => {
+        setActiveDownloads((prev) => {
+          const updated = { ...prev };
+          updated[response.data!.fileUid] = {
+            total: response.data!.totalBytes,
+            downloaded: response.data!.downloadedBytes,
+            progress:
+              response.data!.totalBytes > 0
+                ? response.data!.downloadedBytes / response.data!.totalBytes
+                : 0,
+            fileUid: response.data!.fileUid,
+            fileName: response.data!.file,
+            fileBaseDir: response.data!.baseDir,
+            status: "started",
+          };
+          return updated;
+        });
+      },
+    );
+
+    return () => unsubscribeInitial();
+  }, [setActiveDownloads]);
+
+  // on completed download information from the download manager
+  useEffect(() => {
+    const unsubscribeCompleted = window.download.onCompleted(
+      (response: Response<DownloadProgress>) => {
+        setActiveDownloads((prev) => {
+          const updated = { ...prev };
+          updated[response.data!.fileUid] = {
+            total: response.data!.totalBytes,
+            downloaded: response.data!.downloadedBytes,
+            progress:
+              response.data!.totalBytes > 0
+                ? response.data!.downloadedBytes / response.data!.totalBytes
+                : 0,
+            fileUid: response.data!.fileUid,
+            fileName: response.data!.file,
+            fileBaseDir: response.data!.baseDir,
+            status: "completed",
+          };
+          return updated;
+        });
+      },
+    );
+
+    return () => unsubscribeCompleted();
+  }, [setActiveDownloads]);
 
   return (
     <AppLayout>
-      <DownloadsHeader onNewDownload={() => setShowNewDownload(true)} />
-      {showNewDownload && (
-        <NewDownloadModal
-          open={showNewDownload}
-          onOpenChange={setShowNewDownload}
-          onStart={handleStart}
-        />
-      )}
+      <div className="w-full h-full flex flex-col">
+        <DownloadsHeader onNewDownload={() => setShowNewDownload(true)} />
+        {showNewDownload && (
+          <NewDownloadModal
+            open={showNewDownload}
+            onOpenChange={setShowNewDownload}
+            onStart={handleStart}
+          />
+        )}
+        <div className="flex-1 overflow-auto bg-red-400"></div>
+        {showActiveDownloadsPanel && <ActiveDownloadsPanel />}
+      </div>
     </AppLayout>
   );
 }

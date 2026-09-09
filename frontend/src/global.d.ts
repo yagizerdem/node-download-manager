@@ -22,6 +22,12 @@ declare global {
       onProgress: (
         callback: (progress: Response<DownloadProgress>) => void,
       ) => () => void;
+      onInitial: (
+        callback: (progress: Response<DownloadProgress>) => void,
+      ) => () => void;
+      onCompleted: (
+        callback: (progress: Response<DownloadProgress>) => void,
+      ) => () => void;
     };
   }
 }

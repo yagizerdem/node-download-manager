@@ -37,8 +37,8 @@ const downloadApi = {
       "download:getRemoteFileAsync",
       file,
       url,
-      downloadsDir,
       fileUid,
+      downloadsDir,
     ),
   onProgress: (callback: Function) => {
     const listener = (_event: Electron.IpcRendererEvent, value: unknown) =>
@@ -47,6 +47,26 @@ const downloadApi = {
     return () =>
       ipcRenderer.removeListener(
         "download:getRemoteFileAsync:progress",
+        listener,
+      );
+  },
+  onInitial: (callback: Function) => {
+    const listener = (_event: Electron.IpcRendererEvent, value: unknown) =>
+      callback(value);
+    ipcRenderer.on("download:getRemoteFileAsync:initial", listener);
+    return () =>
+      ipcRenderer.removeListener(
+        "download:getRemoteFileAsync:initial",
+        listener,
+      );
+  },
+  onCompleted: (callback: Function) => {
+    const listener = (_event: Electron.IpcRendererEvent, value: unknown) =>
+      callback(value);
+    ipcRenderer.on("download:getRemoteFileAsync:completed", listener);
+    return () =>
+      ipcRenderer.removeListener(
+        "download:getRemoteFileAsync:completed",
         listener,
       );
   },

@@ -116,10 +116,30 @@ export class DownloadController {
       let localFile = fs.createWriteStream(absoluteFilePath);
       const window = BrowserWindow.getAllWindows()[0];
 
+      // send response before starting the download
+      const initialResponse: Response<DownloadProgress> = {
+        code: "SUCCESS",
+        success: true,
+        data: {
+          absoluteFilePath: absoluteFilePath,
+          baseDir: downloadsDir,
+          file: file,
+          downloadedBytes: cur,
+          totalBytes: len,
+          totalMegabytes: total,
+          fileUid,
+        },
+      };
+
+      window.webContents.send(
+        "download:getRemoteFileAsync:initial",
+        initialResponse,
+      );
+
       response.on("data", function (chunk) {
         cur += chunk.length;
 
-        const response: Response<DownloadProgress> = {
+        const progressResponse: Response<DownloadProgress> = {
           code: "SUCCESS",
           success: true,
           data: {
@@ -135,7 +155,7 @@ export class DownloadController {
 
         window.webContents.send(
           "download:getRemoteFileAsync:progress",
-          response,
+          progressResponse,
         );
 
         showProgressStdout(file, cur, len, total);
@@ -199,6 +219,26 @@ export class DownloadController {
     const totalMegabytes = length / 1_048_576;
     const window = BrowserWindow.getAllWindows()[0];
 
+    // send response before starting the download
+    const initialResponse: Response<DownloadProgress> = {
+      code: "SUCCESS",
+      success: true,
+      data: {
+        absoluteFilePath: absoluteFilePath,
+        baseDir: downloadsDir,
+        file: file,
+        downloadedBytes: downloadedBytes,
+        totalBytes: length,
+        totalMegabytes: totalMegabytes,
+        fileUid,
+      },
+    };
+
+    window.webContents.send(
+      "download:getRemoteFileAsync:initial",
+      initialResponse,
+    );
+
     response.on("data", (chunk: Buffer) => {
       downloadedBytes += chunk.length;
       const response: Response<DownloadProgress> = {
@@ -220,6 +260,25 @@ export class DownloadController {
     });
 
     response.on("end", () => {
+      const response: Response<DownloadProgress> = {
+        code: "SUCCESS",
+        success: true,
+        data: {
+          absoluteFilePath: absoluteFilePath,
+          baseDir: downloadsDir,
+          file: file,
+          downloadedBytes: downloadedBytes,
+          totalBytes: length,
+          totalMegabytes: totalMegabytes,
+          fileUid,
+        },
+      };
+
+      window.webContents.send(
+        "download:getRemoteFileAsync:completed",
+        response,
+      );
+
       console.log("Download complete");
     });
 

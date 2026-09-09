@@ -18,6 +18,8 @@ type DownloadProviderState = {
   setIsCalculatingDownloadSpeed: Dispatch<SetStateAction<boolean>>;
   activeDownloads: Record<string, DownloadStatus>;
   setActiveDownloads: Dispatch<SetStateAction<Record<string, DownloadStatus>>>;
+  showActiveDownloadsPanel: boolean;
+  setShowActiveDownloadsPanel: Dispatch<SetStateAction<boolean>>;
 };
 
 export type DownloadStatus = {
@@ -26,6 +28,8 @@ export type DownloadStatus = {
   progress: number;
   fileUid: string;
   fileName: string;
+  fileBaseDir: string;
+  status: "started" | "in_progress" | "completed" | "failed" | "paused";
 };
 
 const initialState: DownloadProviderState = {
@@ -35,6 +39,8 @@ const initialState: DownloadProviderState = {
   setIsCalculatingDownloadSpeed: () => null,
   activeDownloads: {},
   setActiveDownloads: () => null,
+  showActiveDownloadsPanel: false,
+  setShowActiveDownloadsPanel: () => null,
 };
 
 const DownloadProviderContext =
@@ -53,6 +59,8 @@ export function DownloadProvider({
   const [activeDownloads, setActiveDownloads] = useState<
     Record<string, DownloadStatus>
   >({});
+  const [showActiveDownloadsPanel, setShowActiveDownloadsPanel] =
+    useState(true);
 
   const value = {
     downloadSpeed,
@@ -61,6 +69,8 @@ export function DownloadProvider({
     setIsCalculatingDownloadSpeed,
     activeDownloads,
     setActiveDownloads,
+    showActiveDownloadsPanel,
+    setShowActiveDownloadsPanel,
   };
 
   useEffect(() => {
