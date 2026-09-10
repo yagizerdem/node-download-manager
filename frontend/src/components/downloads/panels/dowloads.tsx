@@ -4,7 +4,7 @@ import {
   FolderOpenIcon,
   PencilIcon,
   Trash2Icon,
-  StarIcon,
+  BookmarkIcon,
   LibraryIcon,
 } from "lucide-react";
 import { useDownload } from "@/provider/download-provider";
@@ -25,8 +25,12 @@ type Metadata = Pick<
 >;
 
 export default function Downloads() {
-  const { dowloadedRecords, setDowloadedRecords, setRecentDownloads } =
-    useDownload();
+  const {
+    dowloadedRecords,
+    recentDownloads,
+    setDowloadedRecords,
+    setRecentDownloads,
+  } = useDownload();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [reload, setReload] = useState(0);
@@ -84,20 +88,40 @@ export default function Downloads() {
         setRecentDownloads((records) =>
           records.filter((record) => record.id !== selected.id),
         );
+
+        toast.add({
+          title: "Record deleted",
+          type: "success",
+        });
       } else {
-        const updated = await window.db.updateDownload(selected.id, draft);
-        const replace = (records: DownloadDTO[]) =>
-          records.map((record) =>
-            record.id === updated.id ? updated : record,
-          );
-        setDowloadedRecords(replace);
-        setRecentDownloads(replace);
+        // update the selected download with the draft metadata
+        const response = await window.db.updateDownload(selected.id, draft);
+        if (!response.success) {
+          toast.add({
+            title: "Could not update download",
+            description: response.message,
+            type: "error",
+          });
+          return;
+        }
+        const updated = response.data;
+
+        if (updated) {
+          const replace = (records: DownloadDTO[]) =>
+            records.map((record) =>
+              record.id === updated.id ? updated : record,
+            );
+          setDowloadedRecords(replace(dowloadedRecords));
+          setRecentDownloads(replace(recentDownloads));
+
+          setSelected(null);
+          toast.add({
+            title: "Record updated",
+            type: "success",
+          });
+        }
       }
       setSelected(null);
-      toast.add({
-        title: action === "delete" ? "Record deleted" : "Download updated",
-        type: "success",
-      });
     } catch {
       toast.add({
         title: "Could not save changes",
@@ -194,7 +218,7 @@ export default function Downloads() {
                       {record.file_name}
                     </span>
                     {Boolean(record.marked) && (
-                      <StarIcon
+                      <BookmarkIcon
                         className="size-3.5 shrink-0 fill-amber-400 text-amber-500"
                         aria-label="Starred"
                       />
@@ -267,8 +291,19 @@ export default function Downloads() {
           ) : (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Organize this file with a priority, color label and star.
+                Organize this file with a priority, color label and mark.
               </p>
+              <label className="block space-y-2 text-sm">
+                <span>File name</span>
+                <input
+                  type="text"
+                  className="w-full rounded-lg border border-border bg-background p-2"
+                  defaultValue={selected?.file_name || ""}
+                  onChange={(event) =>
+                    setDraft({ ...draft, file_name: event.target.value })
+                  }
+                />
+              </label>
               <label className="block space-y-2 text-sm">
                 <span>Priority</span>
                 <select
@@ -327,7 +362,7 @@ export default function Downloads() {
                     setDraft({ ...draft, marked: event.target.checked })
                   }
                 />
-                Star this download
+                Mark this download
               </label>
             </div>
           )}

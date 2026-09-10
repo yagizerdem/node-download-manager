@@ -1,9 +1,17 @@
-export type ResponseCode = "SUCCESS" | "UNKOWNERROR";
+export type ResponseCode =
+  | "SUCCESS"
+  | "UNKOWNERROR"
+  | "FILE_NOT_FOUND"
+  | "RECORD_NOT_FOUND"
+  | "INVALID_DOWNLOAD_DETAILS"
+  | "FILE_ALREADY_EXISTS"
+  | "FILE_RENAME_FAILED";
 
 export interface Response<T> {
   success: boolean;
   code: ResponseCode;
   data?: T;
+  message?: string;
 }
 
 export interface DownloadProgress {

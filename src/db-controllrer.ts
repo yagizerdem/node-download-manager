@@ -1,5 +1,7 @@
 import { type DownloadDTO, type Response } from "../shared/response.ts";
 import { db } from "./db.ts";
+import path from "node:path";
+import fsPromises from "node:fs/promises";
 
 export class DbController {
   async insertDownload(
@@ -53,7 +55,7 @@ export class DbController {
   async updateDownload(
     id: number,
     changes: Pick<DownloadDTO, "file_name" | "marked" | "color" | "priority">,
-  ): Promise<DownloadDTO> {
+  ): Promise<Response<DownloadDTO | void>> {
     if (
       !Number.isSafeInteger(id) ||
       id < 1 ||
@@ -74,8 +76,61 @@ export class DbController {
       ].includes(changes.color) ||
       ![null, "low", "medium", "high"].includes(changes.priority)
     ) {
-      throw new Error("Invalid download details.");
+      return {
+        code: "INVALID_DOWNLOAD_DETAILS",
+        success: false,
+        data: undefined,
+        message: "Invalid download details.",
+      };
     }
+
+    // get the current record from database
+    const currentRecord = await db<DownloadDTO>("downloads")
+      .where({ id })
+      .first();
+    if (!currentRecord) {
+      return {
+        code: "RECORD_NOT_FOUND",
+        success: false,
+        data: undefined,
+        message: "Record not found.",
+      };
+    }
+
+    // check file system that has record
+    const absoluteFilePath = path.join(
+      currentRecord.root_dir,
+      currentRecord.file_name,
+    );
+    if (
+      !(await fsPromises
+        .access(absoluteFilePath)
+        .then(() => true)
+        .catch(() => false))
+    ) {
+      return {
+        code: "FILE_NOT_FOUND",
+        success: false,
+        data: undefined,
+        message: "File not found on the file system.",
+      };
+    }
+
+    try {
+      fsPromises.rename(
+        absoluteFilePath,
+        path.join(currentRecord.root_dir, changes.file_name),
+      );
+    } catch (err) {
+      console.log(err);
+      return {
+        code: "FILE_RENAME_FAILED",
+        success: false,
+        data: undefined,
+        message: "Failed to rename file.",
+      };
+    }
+
     const [record] = await db<DownloadDTO>("downloads")
       .where({ id })
       .update({
@@ -86,8 +141,21 @@ export class DbController {
         updated_at: db.fn.now(),
       })
       .returning("*");
-    if (!record) throw new Error("Download record not found.");
-    return record;
+
+    if (!record) {
+      return {
+        code: "RECORD_NOT_FOUND",
+        success: false,
+        data: undefined,
+        message: "Record not found.",
+      };
+    }
+
+    return {
+      code: "SUCCESS",
+      success: true,
+      data: record,
+    };
   }
 
   async getPaginated(

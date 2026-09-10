@@ -41,7 +41,7 @@ declare global {
           DownloadDTO,
           "file_name" | "marked" | "color" | "priority"
         >,
-      ) => Promise<DownloadDTO>;
+      ) => Promise<Response<DownloadDTO>>;
       insertDownload: (
         dto: Omit<DownloadDTO, "id" | "created_at" | "updated_at">,
       ) => Promise<Response<DownloadDTO | void>>;
