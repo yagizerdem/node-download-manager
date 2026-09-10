@@ -101,7 +101,8 @@ export class DownloadController {
       var total = len / 1048576; //1048576 - bytes in 1 Megabyte
 
       const extension = extractFileExtension(response.headers, url);
-      const mimeType = lookupMimeType(extension) ?? "application/octet-stream";
+      const mimeType: string =
+        lookupMimeType(extension) || "application/octet-stream";
 
       if (!file) {
         file = crypto.randomUUID() + (extension ?? ".bin");
@@ -128,6 +129,9 @@ export class DownloadController {
           totalBytes: len,
           totalMegabytes: total,
           fileUid,
+          extension,
+          mimeType,
+          url,
         },
       };
 
@@ -150,6 +154,9 @@ export class DownloadController {
             totalBytes: len,
             totalMegabytes: total,
             fileUid,
+            extension,
+            mimeType,
+            url,
           },
         };
 
@@ -200,7 +207,7 @@ export class DownloadController {
     }
 
     const extension = extractFileExtension(response.headers, url);
-    const mimeType = lookupMimeType(extension) ?? "application/octet-stream";
+    const mimeType = lookupMimeType(extension) || "application/octet-stream";
 
     if (!file) {
       file = crypto.randomUUID() + (extension ?? ".bin");
@@ -231,6 +238,9 @@ export class DownloadController {
         totalBytes: length,
         totalMegabytes: totalMegabytes,
         fileUid,
+        extension,
+        mimeType,
+        url,
       },
     };
 
@@ -252,6 +262,9 @@ export class DownloadController {
           totalBytes: length,
           totalMegabytes: totalMegabytes,
           fileUid,
+          extension,
+          mimeType,
+          url,
         },
       };
 
@@ -271,6 +284,9 @@ export class DownloadController {
           totalBytes: length,
           totalMegabytes: totalMegabytes,
           fileUid,
+          extension,
+          mimeType,
+          url,
         },
       };
 

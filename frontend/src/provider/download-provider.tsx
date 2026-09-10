@@ -6,6 +6,7 @@ import {
   type Dispatch,
   useEffect,
 } from "react";
+import type { DownloadDTO } from "../../../shared/response";
 
 type DownloadProviderProps = {
   children: React.ReactNode;
@@ -18,8 +19,12 @@ type DownloadProviderState = {
   setIsCalculatingDownloadSpeed: Dispatch<SetStateAction<boolean>>;
   activeDownloads: Record<string, DownloadStatus>;
   setActiveDownloads: Dispatch<SetStateAction<Record<string, DownloadStatus>>>;
-  showActiveDownloadsPanel: boolean;
-  setShowActiveDownloadsPanel: Dispatch<SetStateAction<boolean>>;
+  showActiveDownloadsFooter: boolean;
+  setShowActiveDownloadsFooter: Dispatch<SetStateAction<boolean>>;
+  dowloadedRecords: DownloadDTO[];
+  setDowloadedRecords: Dispatch<SetStateAction<DownloadDTO[]>>;
+  recentDownloads: DownloadDTO[];
+  setRecentDownloads: Dispatch<SetStateAction<DownloadDTO[]>>;
 };
 
 export type DownloadStatus = {
@@ -30,6 +35,7 @@ export type DownloadStatus = {
   fileName: string;
   fileBaseDir: string;
   status: "started" | "in_progress" | "completed" | "failed" | "paused";
+  downloadedAt: string;
 };
 
 const initialState: DownloadProviderState = {
@@ -39,8 +45,12 @@ const initialState: DownloadProviderState = {
   setIsCalculatingDownloadSpeed: () => null,
   activeDownloads: {},
   setActiveDownloads: () => null,
-  showActiveDownloadsPanel: false,
-  setShowActiveDownloadsPanel: () => null,
+  showActiveDownloadsFooter: false,
+  setShowActiveDownloadsFooter: () => null,
+  dowloadedRecords: [],
+  setDowloadedRecords: () => null,
+  recentDownloads: [],
+  setRecentDownloads: () => null,
 };
 
 const DownloadProviderContext =
@@ -59,8 +69,14 @@ export function DownloadProvider({
   const [activeDownloads, setActiveDownloads] = useState<
     Record<string, DownloadStatus>
   >({});
-  const [showActiveDownloadsPanel, setShowActiveDownloadsPanel] =
-    useState(true);
+  const [showActiveDownloadsFooter, setShowActiveDownloadsFooter] =
+    useState(false);
+  const [dowloadedRecords, setDowloadedRecords] = useState<DownloadDTO[]>(
+    initialState.dowloadedRecords,
+  );
+  const [recentDownloads, setRecentDownloads] = useState<DownloadDTO[]>(
+    initialState.recentDownloads,
+  );
 
   const value = {
     downloadSpeed,
@@ -69,8 +85,12 @@ export function DownloadProvider({
     setIsCalculatingDownloadSpeed,
     activeDownloads,
     setActiveDownloads,
-    showActiveDownloadsPanel,
-    setShowActiveDownloadsPanel,
+    showActiveDownloadsFooter,
+    setShowActiveDownloadsFooter,
+    dowloadedRecords,
+    setDowloadedRecords,
+    recentDownloads,
+    setRecentDownloads,
   };
 
   useEffect(() => {

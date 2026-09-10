@@ -36,7 +36,7 @@ declare global {
     db: {
       insertDownload: (
         dto: Omit<DownloadDTO, "id" | "created_at" | "updated_at">,
-      ) => Promise<void>;
+      ) => Promise<Response<DownloadDTO | void>>;
       getAll: () => Promise<any[]>;
       getById: (id: number) => Promise<any>;
       deleteById: (id: number) => Promise<number>;

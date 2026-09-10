@@ -1,12 +1,12 @@
-import { DownloadDTO } from "../shared/response.ts";
+import { type DownloadDTO, type Response } from "../shared/response.ts";
 import { db } from "./db.ts";
 
 export class DbController {
   async insertDownload(
     dto: Omit<DownloadDTO, "id" | "created_at" | "updated_at">,
-  ) {
+  ): Promise<Response<DownloadDTO | void>> {
     try {
-      await db
+      const inserted: DownloadDTO = await db
         .insert({
           file_name: dto.file_name,
           mime_type: dto.mime_type,
@@ -19,9 +19,22 @@ export class DbController {
           priority: dto.priority,
           url: dto.url,
         })
-        .into("downloads");
+        .into("downloads")
+        .returning("*")
+        .first();
+
+      return {
+        code: "SUCCESS",
+        success: true,
+        data: inserted ?? undefined,
+      };
     } catch (err) {
-      throw err;
+      console.log(err);
+      return {
+        code: "UNKOWNERROR",
+        success: false,
+        data: undefined,
+      };
     }
   }
 

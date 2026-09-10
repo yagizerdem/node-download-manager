@@ -1,11 +1,15 @@
-import ActiveDownloadsPanel from "./active-dowloads-panel";
+import ActiveDownloadsFooter from "./active-dowloads-footer";
 import DownloadsHeader from "./header";
 import { useEffect, useState } from "react";
 import NewDownloadModal, {
   type NewDownloadValues,
 } from "@components/downloads/new-download-modal";
 import { toast } from "@components/ui/toast";
-import type { DownloadProgress, Response } from "../../../../shared/response";
+import type {
+  DownloadDTO,
+  DownloadProgress,
+  Response,
+} from "../../../../shared/response";
 import { useDownload, type DownloadStatus } from "@/provider/download-provider";
 import AppLayout from "@/layouts/app-layout";
 import { Button } from "@components/ui/button";
@@ -14,9 +18,11 @@ import { ChevronUpIcon, DownloadIcon } from "lucide-react";
 export default function Page() {
   const [showNewDownload, setShowNewDownload] = useState(false);
   const {
+    activeDownloads,
     setActiveDownloads,
-    setShowActiveDownloadsPanel,
-    showActiveDownloadsPanel,
+    setShowActiveDownloadsFooter,
+    showActiveDownloadsFooter,
+    setRecentDownloads,
   } = useDownload();
 
   async function handleStart(values: NewDownloadValues[]) {
@@ -45,6 +51,7 @@ export default function Page() {
           fileName: value.fileName!,
           fileBaseDir: "",
           status: "started",
+          downloadedAt: new Date().toISOString(),
         };
         acc[value.id] = progress;
         return acc;
@@ -52,7 +59,7 @@ export default function Page() {
       {} as Record<string, DownloadStatus>,
     );
     setActiveDownloads(dowloadStatusMap);
-    setShowActiveDownloadsPanel(true);
+    setShowActiveDownloadsFooter(true);
 
     for (const value of values) {
       // send request without awaiting
@@ -77,6 +84,9 @@ export default function Page() {
             fileName: response.data!.file,
             fileBaseDir: response.data!.baseDir,
             status: "in_progress",
+            downloadedAt:
+              prev[response.data!.fileUid]?.downloadedAt ??
+              new Date().toISOString(),
           };
           return updated;
         });
@@ -103,6 +113,9 @@ export default function Page() {
             fileName: response.data!.file,
             fileBaseDir: response.data!.baseDir,
             status: "started",
+            downloadedAt:
+              prev[response.data!.fileUid]?.downloadedAt ??
+              new Date().toISOString(),
           };
           return updated;
         });
@@ -115,7 +128,7 @@ export default function Page() {
   // on completed download information from the download manager
   useEffect(() => {
     const unsubscribeCompleted = window.download.onCompleted(
-      (response: Response<DownloadProgress>) => {
+      async (response: Response<DownloadProgress>) => {
         setActiveDownloads((prev) => {
           const updated = { ...prev };
           updated[response.data!.fileUid] = {
@@ -129,14 +142,53 @@ export default function Page() {
             fileName: response.data!.file,
             fileBaseDir: response.data!.baseDir,
             status: "completed",
+            downloadedAt:
+              prev[response.data!.fileUid]?.downloadedAt ??
+              new Date().toISOString(),
           };
           return updated;
         });
+
+        // add record to db
+        const downloadRecord: Omit<
+          DownloadDTO,
+          "id" | "created_at" | "updated_at"
+        > = {
+          url: response.data?.url || "",
+          file_name: response.data!.file,
+          mime_type: response.data!.mimeType,
+          extension: response.data!.extension,
+          root_dir: response.data!.baseDir,
+          file_size: response.data!.totalBytes,
+          downloaded_at:
+            activeDownloads[response.data!.fileUid]?.downloadedAt ??
+            new Date().toISOString(),
+          marked: false,
+          color: "none",
+          priority: "low",
+        };
+
+        const insertResponse: Response<DownloadDTO | void> =
+          await window.db.insertDownload(downloadRecord);
+        console.log(insertResponse);
+        if (!insertResponse.success) {
+          toast.add({
+            title: "Download Failed",
+            description: "Failed to insert download record into the database.",
+            type: "error",
+          });
+          return;
+        }
+
+        const newRecord = insertResponse.data;
+        if (newRecord) {
+          setRecentDownloads((prev) => [...prev, newRecord]);
+        }
       },
     );
 
     return () => unsubscribeCompleted();
-  }, [setActiveDownloads]);
+  }, [setActiveDownloads, activeDownloads, setRecentDownloads]);
 
   return (
     <AppLayout>
@@ -150,10 +202,10 @@ export default function Page() {
           />
         )}
         <div className="flex-1 overflow-auto bg-red-400"></div>
-        {!showActiveDownloadsPanel && (
+        {!showActiveDownloadsFooter && (
           <div className="flex shrink-0 justify-end border-t border-slate-200/80 bg-sidebar px-6 py-2 dark:border-border">
             <Button
-              onClick={() => setShowActiveDownloadsPanel(true)}
+              onClick={() => setShowActiveDownloadsFooter(true)}
               className="group h-10 gap-2 rounded-md bg-stitch-secondary text-stitch-on-secondary
                px-4 font-semibold shadow-sm transition-colors
                hover:bg-stitch-secondary/90 focus-visible:ring-2 focus-visible:ring-blue-500/50 
@@ -169,7 +221,7 @@ export default function Page() {
             </Button>
           </div>
         )}
-        {showActiveDownloadsPanel && <ActiveDownloadsPanel />}
+        {showActiveDownloadsFooter && <ActiveDownloadsFooter />}
       </div>
     </AppLayout>
   );

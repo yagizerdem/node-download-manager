@@ -6,9 +6,9 @@ import { Progress } from "@components/ui/progress";
 
 import { useLayoutEffect, useRef } from "react";
 
-function ActiveDownloadsPanel() {
+function ActiveDownloadsFooter() {
   const panelRef = useRef<HTMLDivElement>(null);
-  const { activeDownloads, setShowActiveDownloadsPanel } = useDownload();
+  const { activeDownloads, setShowActiveDownloadsFooter } = useDownload();
   const downloads = Object.values(activeDownloads);
 
   useLayoutEffect(() => {
@@ -28,7 +28,7 @@ function ActiveDownloadsPanel() {
       yPercent: 100,
       duration: 0.4,
       ease: "power2.in",
-      onComplete: () => setShowActiveDownloadsPanel(false),
+      onComplete: () => setShowActiveDownloadsFooter(false),
     });
   }
 
@@ -151,4 +151,4 @@ function formatStatus(download: DownloadStatus) {
   }
 }
 
-export default ActiveDownloadsPanel;
+export default ActiveDownloadsFooter;

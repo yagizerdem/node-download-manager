@@ -10,7 +10,10 @@ export interface DownloadProgress {
   file: string;
   baseDir: string;
   absoluteFilePath: string;
+  url: string;
   downloadedBytes: number;
+  mimeType: string;
+  extension: string;
   totalBytes: number;
   totalMegabytes: number;
   fileUid: string;
