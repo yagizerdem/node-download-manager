@@ -14,9 +14,13 @@ import { useDownload, type DownloadStatus } from "@/provider/download-provider";
 import AppLayout from "@/layouts/app-layout";
 import { Button } from "@components/ui/button";
 import { ChevronUpIcon, DownloadIcon } from "lucide-react";
+import { PanelSelection } from "./panel-selection";
 
 export default function Page() {
   const [showNewDownload, setShowNewDownload] = useState(false);
+  const [selectedPanel, setSelectedPanel] = useState<
+    "downloaded" | "active" | "recent"
+  >("downloaded");
   const {
     activeDownloads,
     setActiveDownloads,
@@ -202,7 +206,12 @@ export default function Page() {
             onStart={handleStart}
           />
         )}
-        <div className="flex-1 overflow-auto bg-red-400"></div>
+        <div className="flex-1 overflow-auto bg-red-400">
+          <PanelSelection
+            selectedPanel={selectedPanel}
+            onSelectedPanelChange={(panel) => setSelectedPanel(panel)}
+          />
+        </div>
         {!showActiveDownloadsFooter && (
           <div className="flex shrink-0 justify-end border-t border-slate-200/80 bg-sidebar px-6 py-2 dark:border-border">
             <Button

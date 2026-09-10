@@ -30,7 +30,9 @@ export default function DownloadsHeader({
   return (
     <header
       aria-label="Download controls"
-      className="flex min-h-[68px] w-full shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-slate-200/80 bg-sidebar px-4 py-3 dark:border-border"
+      className="flex min-h-[68px] w-full shrink-0 flex-wrap items-center
+       justify-between gap-x-6 gap-y-3 border-b 
+      border-slate-200/80 bg-sidebar px-4 py-3 dark:border-border"
     >
       <div className="relative w-full sm:w-[290px]">
         <SearchIcon
