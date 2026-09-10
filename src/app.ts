@@ -52,6 +52,10 @@ app.whenReady().then(() => {
   );
 
   // downloads contorller
+  ipcMain.handle("download:control", (_event, fileUid: string, action: "pause" | "continue" | "cancel") => {
+    if (!["pause", "continue", "cancel"].includes(action)) throw new Error("Invalid download action");
+    return downloadController.control(fileUid, action);
+  });
   ipcMain.handle(
     "download:getRemoteFileAsync",
     (

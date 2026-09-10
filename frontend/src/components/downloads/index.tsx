@@ -1,6 +1,6 @@
 import ActiveDownloadsFooter from "./active-dowloads-footer";
 import DownloadsHeader from "./header";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import NewDownloadModal, {
   type NewDownloadValues,
 } from "@components/downloads/new-download-modal";
@@ -17,8 +17,10 @@ import { ChevronUpIcon, DownloadIcon } from "lucide-react";
 import { PanelSelection } from "./panel-selection";
 import RecentPanel from "./panels/recent";
 import Downloads from "./panels/dowloads";
+import ActivePanel from "./panels/active";
 
 export default function Page() {
+  const runningDownloads = useRef(new Set<string>());
   const [showNewDownload, setShowNewDownload] = useState(false);
   const [selectedPanel, setSelectedPanel] = useState<
     "downloaded" | "active" | "recent"
@@ -31,6 +33,81 @@ export default function Page() {
     setRecentDownloads,
     setDowloadedRecords,
   } = useDownload();
+
+  async function runDownload(download: DownloadStatus) {
+    if (runningDownloads.current.has(download.fileUid)) return;
+    runningDownloads.current.add(download.fileUid);
+    setActiveDownloads((prev) => ({
+      ...prev,
+      [download.fileUid]: {
+        ...download,
+        status: "started",
+        downloaded: 0,
+        progress: 0,
+        error: undefined,
+      },
+    }));
+    try {
+      const status = await window.download.getRemoteFileAsync(
+        download.fileName,
+        download.url,
+        download.fileUid,
+        download.fileBaseDir || undefined,
+      );
+      if (status === "canceled") {
+        setActiveDownloads((prev) => ({
+          ...prev,
+          [download.fileUid]: { ...prev[download.fileUid], status: "canceled" },
+        }));
+      }
+    } catch (error) {
+      setActiveDownloads((prev) => ({
+        ...prev,
+        [download.fileUid]: {
+          ...prev[download.fileUid],
+          status: "failed",
+          error:
+            error instanceof Error
+              ? error.message
+              : "Download failed. Please try again.",
+        },
+      }));
+    } finally {
+      runningDownloads.current.delete(download.fileUid);
+    }
+  }
+
+  async function controlDownload(
+    download: DownloadStatus,
+    action: "pause" | "continue" | "cancel",
+  ) {
+    try {
+      const changed = await window.download.control(download.fileUid, action);
+      if (changed && action !== "cancel") {
+        setActiveDownloads((prev) => {
+          const current = prev[download.fileUid];
+          if (
+            !current ||
+            ["completed", "failed", "canceled"].includes(current.status)
+          )
+            return prev;
+          return {
+            ...prev,
+            [download.fileUid]: {
+              ...current,
+              status: action === "pause" ? "paused" : "in_progress",
+            },
+          };
+        });
+      }
+    } catch {
+      toast.add({
+        title: "Could not control download",
+        description: "Please try again.",
+        type: "error",
+      });
+    }
+  }
 
   async function handleStart(values: NewDownloadValues[]) {
     for (const value of values) {
@@ -57,6 +134,8 @@ export default function Page() {
           fileUid: value.id,
           fileName: value.fileName!,
           fileBaseDir: "",
+          url: value.url,
+          absoluteFilePath: "",
           status: "started",
           downloadedAt: new Date().toISOString(),
         };
@@ -70,7 +149,7 @@ export default function Page() {
 
     for (const value of values) {
       // send request without awaiting
-      window.download.getRemoteFileAsync(value.fileName!, value.url, value.id);
+      void runDownload(dowloadStatusMap[value.id]);
     }
   }
 
@@ -90,7 +169,12 @@ export default function Page() {
             fileUid: response.data!.fileUid,
             fileName: response.data!.file,
             fileBaseDir: response.data!.baseDir,
-            status: "in_progress",
+            url: response.data!.url,
+            absoluteFilePath: response.data!.absoluteFilePath,
+            status:
+              prev[response.data!.fileUid]?.status === "paused"
+                ? "paused"
+                : "in_progress",
             downloadedAt:
               prev[response.data!.fileUid]?.downloadedAt ??
               new Date().toISOString(),
@@ -119,7 +203,12 @@ export default function Page() {
             fileUid: response.data!.fileUid,
             fileName: response.data!.file,
             fileBaseDir: response.data!.baseDir,
-            status: "started",
+            url: response.data!.url,
+            absoluteFilePath: response.data!.absoluteFilePath,
+            status:
+              prev[response.data!.fileUid]?.status === "paused"
+                ? "paused"
+                : "started",
             downloadedAt:
               prev[response.data!.fileUid]?.downloadedAt ??
               new Date().toISOString(),
@@ -148,6 +237,8 @@ export default function Page() {
             fileUid: response.data!.fileUid,
             fileName: response.data!.file,
             fileBaseDir: response.data!.baseDir,
+            url: response.data!.url,
+            absoluteFilePath: response.data!.absoluteFilePath,
             status: "completed",
             downloadedAt:
               prev[response.data!.fileUid]?.downloadedAt ??
@@ -224,6 +315,9 @@ export default function Page() {
           <div className="flex flex-col flex-1 overflow-y-auto">
             {selectedPanel === "recent" && <RecentPanel />}
             {selectedPanel === "downloaded" && <Downloads />}
+            {selectedPanel === "active" && (
+              <ActivePanel onStart={runDownload} onControl={controlDownload} />
+            )}
           </div>
         </div>
         {!showActiveDownloadsFooter && (

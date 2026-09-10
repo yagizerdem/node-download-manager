@@ -17,13 +17,14 @@ declare global {
       startSpeedTestAsync: () => Promise<Response<{ mbps: number }>>;
     };
     download: {
+      control: (fileUid: string, action: "pause" | "continue" | "cancel") => Promise<boolean>;
       showInFolder: (absolutePath: string) => Promise<void>;
       getRemoteFileAsync: (
         file: string,
         url: string,
         fileUid: string,
         downloadsDir?: string | undefined,
-      ) => Promise<Response<DownloadProgress>>;
+      ) => Promise<"completed" | "canceled">;
       onProgress: (
         callback: (progress: Response<DownloadProgress>) => void,
       ) => () => void;

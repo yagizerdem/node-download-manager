@@ -34,7 +34,10 @@ export type DownloadStatus = {
   fileUid: string;
   fileName: string;
   fileBaseDir: string;
-  status: "started" | "in_progress" | "completed" | "failed" | "paused";
+  url: string;
+  absoluteFilePath: string;
+  error?: string;
+  status: "started" | "in_progress" | "completed" | "failed" | "paused" | "canceled";
   downloadedAt: string;
 };
 

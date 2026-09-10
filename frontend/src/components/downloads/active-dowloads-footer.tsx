@@ -61,8 +61,8 @@ function ActiveDownloadsFooter() {
 
 function ActiveDownloadItem({ download }: { download: DownloadStatus }) {
   const isFinished =
-    download.status === "completed" || download.status === "failed";
-  const isIndeterminate = download.status === "in_progress";
+    download.status === "completed" || download.status === "failed" || download.status === "canceled";
+  const isIndeterminate = download.total <= 0 && !isFinished && download.status !== "paused";
   const isPaused = download.status === "paused";
 
   const percentage =
@@ -146,6 +146,10 @@ function formatStatus(download: DownloadStatus) {
       return "In Progress";
     case "paused":
       return "Paused";
+    case "canceled":
+      return "Canceled";
+    case "started":
+      return "Starting…";
     default:
       return "Unknown";
   }

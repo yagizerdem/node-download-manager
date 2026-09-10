@@ -2,6 +2,7 @@ import http from "http";
 import https from "https";
 import fs from "fs";
 import { pipeline } from "node:stream/promises";
+import { Transform } from "node:stream";
 import path from "node:path";
 import { parse as contentDispositionParse } from "content-disposition";
 import {
@@ -83,6 +84,31 @@ interface GetRemoteFileAsyncOptions {
 }
 
 export class DownloadController {
+  private transfers = new Map<
+    string,
+    {
+      abort: AbortController;
+      response?: http.IncomingMessage;
+      paused: boolean;
+      continueTransfer?: () => void;
+    }
+  >();
+
+  control(fileUid: string, action: "pause" | "continue" | "cancel") {
+    const transfer = this.transfers.get(fileUid);
+    if (!transfer || transfer.abort.signal.aborted) return false;
+    if (action === "cancel") transfer.abort.abort();
+    else {
+      transfer.paused = action === "pause";
+      if (transfer.paused) transfer.response?.pause();
+      else {
+        transfer.continueTransfer?.();
+        transfer.continueTransfer = undefined;
+        transfer.response?.resume();
+      }
+    }
+    return true;
+  }
   getRemoteFile(options: GetRemoteFileAsyncOptions) {
     let { file, url, downloadsDir, fileUid } = options;
 
@@ -176,7 +202,35 @@ export class DownloadController {
     });
   }
 
-  async getRemoteFileAsync(options: GetRemoteFileAsyncOptions): Promise<void> {
+  async getRemoteFileAsync(options: GetRemoteFileAsyncOptions) {
+    if (this.transfers.has(options.fileUid))
+      throw new Error("Download already running");
+    const transfer = {
+      abort: new AbortController(),
+      paused: false,
+      response: undefined as http.IncomingMessage | undefined,
+    };
+    this.transfers.set(options.fileUid, transfer);
+    try {
+      await this.runDownload(options, transfer);
+      return "completed" as const;
+    } catch (error) {
+      if (transfer.abort.signal.aborted) return "canceled" as const;
+      throw error;
+    } finally {
+      this.transfers.delete(options.fileUid);
+    }
+  }
+
+  private async runDownload(
+    options: GetRemoteFileAsyncOptions,
+    transfer: {
+      abort: AbortController;
+      response?: http.IncomingMessage;
+      paused: boolean;
+      continueTransfer?: () => void;
+    },
+  ): Promise<void> {
     let { file, url, downloadsDir, fileUid } = options;
     if (!downloadsDir) {
       downloadsDir = DOWNLOADS_DIR;
@@ -188,11 +242,16 @@ export class DownloadController {
 
     const response = await new Promise<http.IncomingMessage>(
       (resolve, reject) => {
-        const request = client.get(url, resolve);
+        const request = client.get(
+          url,
+          { signal: transfer.abort.signal },
+          resolve,
+        );
 
         request.on("error", reject);
       },
     );
+    transfer.response = response;
 
     if (
       response.statusCode === undefined ||
@@ -249,30 +308,51 @@ export class DownloadController {
       initialResponse,
     );
 
-    response.on("data", (chunk: Buffer) => {
-      downloadedBytes += chunk.length;
-      const response: Response<DownloadProgress> = {
-        code: "SUCCESS",
-        success: true,
-        data: {
-          absoluteFilePath: absoluteFilePath,
-          baseDir: downloadsDir,
-          file: file,
-          downloadedBytes: downloadedBytes,
-          totalBytes: length,
-          totalMegabytes: totalMegabytes,
-          fileUid,
-          extension,
-          mimeType,
-          url,
-        },
-      };
+    const meter = new Transform({
+      transform(chunk: Buffer, _encoding, callback) {
+        const consume = () => {
+          downloadedBytes += chunk.length;
+          const response: Response<DownloadProgress> = {
+            code: "SUCCESS",
+            success: true,
+            data: {
+              absoluteFilePath: absoluteFilePath,
+              baseDir: downloadsDir,
+              file: file,
+              downloadedBytes: downloadedBytes,
+              totalBytes: length,
+              totalMegabytes: totalMegabytes,
+              fileUid,
+              extension,
+              mimeType,
+              url,
+            },
+          };
 
-      window.webContents.send("download:getRemoteFileAsync:progress", response);
-      showProgressStdout(file, downloadedBytes, length, totalMegabytes);
+          window.webContents.send(
+            "download:getRemoteFileAsync:progress",
+            response,
+          );
+          showProgressStdout(file, downloadedBytes, length, totalMegabytes);
+          callback(null, chunk);
+        };
+        if (transfer.paused) transfer.continueTransfer = consume;
+        else consume();
+      },
     });
 
-    response.on("end", () => {
+    const writing = pipeline(
+      response,
+      meter,
+      fs.createWriteStream(absoluteFilePath),
+      {
+        signal: transfer.abort.signal,
+      },
+    );
+    if (transfer.paused) response.pause();
+    await writing;
+
+    {
       const response: Response<DownloadProgress> = {
         code: "SUCCESS",
         success: true,
@@ -296,9 +376,7 @@ export class DownloadController {
       );
 
       console.log("Download complete");
-    });
-
-    await pipeline(response, fs.createWriteStream(absoluteFilePath));
+    }
 
     console.log("Download complete");
   }

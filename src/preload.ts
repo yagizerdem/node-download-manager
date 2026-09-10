@@ -27,6 +27,8 @@ const speedTestApi = {
 };
 
 const downloadApi = {
+  control: (fileUid: string, action: "pause" | "continue" | "cancel"): Promise<boolean> =>
+    ipcRenderer.invoke("download:control", fileUid, action),
   showInFolder: (absolutePath: string): Promise<void> =>
     ipcRenderer.invoke("download:showInFolder", absolutePath),
   getRemoteFileAsync: (
@@ -34,7 +36,7 @@ const downloadApi = {
     url: string,
     fileUid: string,
     downloadsDir?: string | undefined,
-  ): Promise<Response<any>> =>
+  ): Promise<"completed" | "canceled"> =>
     ipcRenderer.invoke(
       "download:getRemoteFileAsync",
       file,
