@@ -58,6 +58,7 @@ export class DbController {
       !Number.isSafeInteger(id) ||
       id < 1 ||
       !changes ||
+      typeof changes.file_name !== "string" ||
       typeof changes.marked !== "boolean" ||
       ![
         null,
@@ -78,6 +79,7 @@ export class DbController {
     const [record] = await db<DownloadDTO>("downloads")
       .where({ id })
       .update({
+        file_name: changes.file_name,
         marked: changes.marked,
         color: changes.color,
         priority: changes.priority,
