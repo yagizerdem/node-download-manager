@@ -70,6 +70,7 @@ app.whenReady().then(() => {
   );
 
   // database controller
+  ipcMain.handle("db:updateDownload", (_event, id, changes) => dbController.updateDownload(id, changes));
   ipcMain.handle("db:insertDownload", (event, dto) =>
     dbController.insertDownload(dto),
   );

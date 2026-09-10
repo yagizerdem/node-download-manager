@@ -75,6 +75,8 @@ const downloadApi = {
 };
 
 const dbApi = {
+  updateDownload: (id: number, changes: Pick<DownloadDTO, "marked" | "color" | "priority">): Promise<DownloadDTO> =>
+    ipcRenderer.invoke("db:updateDownload", id, changes),
   insertDownload: (
     dto: Omit<DownloadDTO, "id" | "created_at" | "updated_at">,
   ): Promise<void> => ipcRenderer.invoke("db:insertDownload", dto),

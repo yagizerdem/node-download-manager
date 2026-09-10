@@ -50,6 +50,44 @@ export class DbController {
     return db<DownloadDTO>("downloads").where({ id }).delete();
   }
 
+  async updateDownload(
+    id: number,
+    changes: Pick<DownloadDTO, "file_name" | "marked" | "color" | "priority">,
+  ): Promise<DownloadDTO> {
+    if (
+      !Number.isSafeInteger(id) ||
+      id < 1 ||
+      !changes ||
+      typeof changes.marked !== "boolean" ||
+      ![
+        null,
+        "none",
+        "red",
+        "orange",
+        "yellow",
+        "green",
+        "blue",
+        "purple",
+        "pink",
+        "brown",
+      ].includes(changes.color) ||
+      ![null, "low", "medium", "high"].includes(changes.priority)
+    ) {
+      throw new Error("Invalid download details.");
+    }
+    const [record] = await db<DownloadDTO>("downloads")
+      .where({ id })
+      .update({
+        marked: changes.marked,
+        color: changes.color,
+        priority: changes.priority,
+        updated_at: db.fn.now(),
+      })
+      .returning("*");
+    if (!record) throw new Error("Download record not found.");
+    return record;
+  }
+
   async getPaginated(
     offset: number = 0,
     limit: number = 20,

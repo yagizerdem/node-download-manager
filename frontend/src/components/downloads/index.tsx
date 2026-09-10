@@ -16,6 +16,7 @@ import { Button } from "@components/ui/button";
 import { ChevronUpIcon, DownloadIcon } from "lucide-react";
 import { PanelSelection } from "./panel-selection";
 import RecentPanel from "./panels/recent";
+import Downloads from "./panels/dowloads";
 
 export default function Page() {
   const [showNewDownload, setShowNewDownload] = useState(false);
@@ -215,6 +216,7 @@ export default function Page() {
           />
           <div className="flex flex-col flex-1 overflow-y-auto">
             {selectedPanel === "recent" && <RecentPanel />}
+            {selectedPanel === "downloaded" && <Downloads />}
           </div>
         </div>
         {!showActiveDownloadsFooter && (

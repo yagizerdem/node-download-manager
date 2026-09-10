@@ -35,6 +35,13 @@ declare global {
       ) => () => void;
     };
     db: {
+      updateDownload: (
+        id: number,
+        changes: Pick<
+          DownloadDTO,
+          "file_name" | "marked" | "color" | "priority"
+        >,
+      ) => Promise<DownloadDTO>;
       insertDownload: (
         dto: Omit<DownloadDTO, "id" | "created_at" | "updated_at">,
       ) => Promise<Response<DownloadDTO | void>>;
