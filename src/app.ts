@@ -6,7 +6,9 @@ import {
   ensureFileExists,
   createDbSchemas,
 } from "./db.ts";
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, shell } from "electron";
+import path from "node:path";
+import { access } from "node:fs/promises";
 import Main from "./main.ts";
 import healthCheckController from "./healt-controller.ts";
 import speedTestController from "./speed-test-controller.ts";
@@ -27,6 +29,13 @@ console.log(`Database path: ${DB_PATH}`);
 Main.main(app, BrowserWindow);
 
 app.whenReady().then(() => {
+  ipcMain.handle("download:showInFolder", async (_event, absolutePath: string) => {
+    if (typeof absolutePath !== "string" || !path.isAbsolute(absolutePath)) {
+      throw new Error("An absolute file path is required.");
+    }
+    await access(absolutePath);
+    shell.showItemInFolder(absolutePath);
+  });
   ipcMain.handle(
     "health-check",
     healthCheckController.healthCheck.bind(healthCheckController),

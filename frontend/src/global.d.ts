@@ -17,6 +17,7 @@ declare global {
       startSpeedTestAsync: () => Promise<Response<{ mbps: number }>>;
     };
     download: {
+      showInFolder: (absolutePath: string) => Promise<void>;
       getRemoteFileAsync: (
         file: string,
         url: string,

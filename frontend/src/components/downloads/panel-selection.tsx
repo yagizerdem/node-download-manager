@@ -1,5 +1,6 @@
 import { ActivityIcon, CircleCheckIcon, HistoryIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const panelOptions = [
   { id: "downloaded", label: "Downloaded", icon: CircleCheckIcon },
@@ -10,16 +11,22 @@ const panelOptions = [
 interface PanelProps {
   selectedPanel: string;
   onSelectedPanelChange: (panel: "downloaded" | "active" | "recent") => void;
+  className?: string;
 }
 
 export function PanelSelection({
   selectedPanel,
   onSelectedPanelChange,
+  className,
 }: PanelProps) {
   return (
     <div
-      className="flex h-14 w-full items-center justify-end border-b border-stitch-outline-variant/50
-        bg-stitch-surface-container-low px-4"
+      className={cn(
+        `flex h-14 w-full items-center justify-end border-b
+         border-stitch-outline-variant/50 
+        bg-stitch-surface-container-low px-4`,
+        className,
+      )}
     >
       <div
         className="flex items-center gap-1 rounded-lg border border-stitch-outline-variant/60

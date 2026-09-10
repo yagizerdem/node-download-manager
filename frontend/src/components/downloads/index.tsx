@@ -15,6 +15,7 @@ import AppLayout from "@/layouts/app-layout";
 import { Button } from "@components/ui/button";
 import { ChevronUpIcon, DownloadIcon } from "lucide-react";
 import { PanelSelection } from "./panel-selection";
+import RecentPanel from "./panels/recent";
 
 export default function Page() {
   const [showNewDownload, setShowNewDownload] = useState(false);
@@ -206,11 +207,15 @@ export default function Page() {
             onStart={handleStart}
           />
         )}
-        <div className="flex-1 overflow-auto bg-red-400">
+        <div className="flex flex-col flex-1 min-h-0">
           <PanelSelection
             selectedPanel={selectedPanel}
             onSelectedPanelChange={(panel) => setSelectedPanel(panel)}
+            className="w-full h-fit p-2"
           />
+          <div className="flex flex-col flex-1 overflow-y-auto">
+            {selectedPanel === "recent" && <RecentPanel />}
+          </div>
         </div>
         {!showActiveDownloadsFooter && (
           <div className="flex shrink-0 justify-end border-t border-slate-200/80 bg-sidebar px-6 py-2 dark:border-border">

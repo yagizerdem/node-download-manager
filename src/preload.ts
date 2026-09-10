@@ -27,6 +27,8 @@ const speedTestApi = {
 };
 
 const downloadApi = {
+  showInFolder: (absolutePath: string): Promise<void> =>
+    ipcRenderer.invoke("download:showInFolder", absolutePath),
   getRemoteFileAsync: (
     file: string,
     url: string,
