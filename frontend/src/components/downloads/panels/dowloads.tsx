@@ -43,6 +43,12 @@ export default function Downloads() {
     file_name: "",
   });
   const [saving, setSaving] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(dowloadedRecords.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+
+  if (page !== currentPage) setPage(currentPage);
 
   useEffect(() => {
     let cancelled = false;
@@ -149,6 +155,8 @@ export default function Downloads() {
   }
 
   const records = [...dowloadedRecords].sort((a, b) => b.id - a.id);
+  const startIndex = (currentPage - 1) * pageSize;
+  const visibleRecords = records.slice(startIndex, startIndex + pageSize);
   return (
     <section className="space-y-6 p-4 text-foreground sm:p-6">
       <header className="flex items-center gap-4 border-b border-border pb-6">
@@ -203,7 +211,7 @@ export default function Downloads() {
             </p>
           </div>
         ) : (
-          records.map((record) => (
+          visibleRecords.map((record) => (
             <div
               key={record.id}
               className="grid items-center gap-4 border-b border-border px-5 py-4 transition-colors last:border-0 hover:bg-muted/30 lg:grid-cols-[minmax(0,1fr)_100px_120px_200px]"
@@ -264,6 +272,55 @@ export default function Downloads() {
               </div>
             </div>
           ))
+        )}
+        {!loading && !error && (
+          <nav
+            aria-label="Downloads pagination"
+            className="flex flex-wrap items-center justify-between gap-4 bg-muted/20 px-5 py-4 text-sm"
+          >
+            <label className="flex items-center gap-2 text-muted-foreground">
+              Rows per page
+              <select
+                className="rounded-lg border border-border bg-background px-2 py-1.5 text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value));
+                  setPage(1);
+                }}
+              >
+                {[10, 20, 50, 100].map((limit) => (
+                  <option key={limit} value={limit}>
+                    {limit}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <span className="text-muted-foreground" role="status">
+              {records.length === 0 ? 0 : startIndex + 1}–
+              {Math.min(startIndex + pageSize, records.length)} of {records.length} files
+            </span>
+            <div className="flex items-center gap-3">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => setPage(currentPage - 1)}
+              >
+                Previous
+              </Button>
+              <span className="tabular-nums text-muted-foreground">
+                Page {currentPage} of {pageCount}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={currentPage === pageCount}
+                onClick={() => setPage(currentPage + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </nav>
         )}
       </div>
       <Dialog

@@ -29,6 +29,7 @@ export default function Page() {
     setShowActiveDownloadsFooter,
     showActiveDownloadsFooter,
     setRecentDownloads,
+    setDowloadedRecords,
   } = useDownload();
 
   async function handleStart(values: NewDownloadValues[]) {
@@ -189,13 +190,19 @@ export default function Page() {
         const newRecord = insertResponse.data;
         if (newRecord) {
           setRecentDownloads((prev) => [...prev, newRecord]);
+          setDowloadedRecords((prev) => [...prev, newRecord]);
           console.log(newRecord);
         }
       },
     );
 
     return () => unsubscribeCompleted();
-  }, [setActiveDownloads, activeDownloads, setRecentDownloads]);
+  }, [
+    setActiveDownloads,
+    activeDownloads,
+    setRecentDownloads,
+    setDowloadedRecords,
+  ]);
 
   return (
     <AppLayout>
