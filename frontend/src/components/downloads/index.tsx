@@ -339,7 +339,9 @@ export default function Page() {
             </Button>
           </div>
         )}
-        {showActiveDownloadsFooter && <ActiveDownloadsFooter />}
+        {showActiveDownloadsFooter && (
+          <ActiveDownloadsFooter onControl={controlDownload} />
+        )}
       </div>
     </AppLayout>
   );

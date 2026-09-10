@@ -6,7 +6,14 @@ import { Progress } from "@components/ui/progress";
 
 import { useLayoutEffect, useRef } from "react";
 
-function ActiveDownloadsFooter() {
+interface ActiveDownloadsFooterProps {
+  onControl: (
+    download: DownloadStatus,
+    action: "pause" | "continue" | "cancel",
+  ) => Promise<void>;
+}
+
+function ActiveDownloadsFooter({ onControl }: ActiveDownloadsFooterProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const { activeDownloads, setShowActiveDownloadsFooter } = useDownload();
   const downloads = Object.values(activeDownloads);
@@ -51,7 +58,11 @@ function ActiveDownloadsFooter() {
           <p className="text-sm text-muted-foreground">No active downloads.</p>
         ) : (
           downloads.map((download) => (
-            <ActiveDownloadItem download={download} key={download.fileUid} />
+            <ActiveDownloadItem
+              download={download}
+              onControl={onControl}
+              key={download.fileUid}
+            />
           ))
         )}
       </div>
@@ -59,10 +70,18 @@ function ActiveDownloadsFooter() {
   );
 }
 
-function ActiveDownloadItem({ download }: { download: DownloadStatus }) {
+interface ActiveDownloadItemProps {
+  download: DownloadStatus;
+  onControl: ActiveDownloadsFooterProps["onControl"];
+}
+
+function ActiveDownloadItem({ download, onControl }: ActiveDownloadItemProps) {
   const isFinished =
-    download.status === "completed" || download.status === "failed" || download.status === "canceled";
-  const isIndeterminate = download.total <= 0 && !isFinished && download.status !== "paused";
+    download.status === "completed" ||
+    download.status === "failed" ||
+    download.status === "canceled";
+  const isIndeterminate =
+    download.total <= 0 && !isFinished && download.status !== "paused";
   const isPaused = download.status === "paused";
 
   const percentage =
@@ -75,12 +94,16 @@ function ActiveDownloadItem({ download }: { download: DownloadStatus }) {
   function togglePause() {
     if (isPaused) {
       // continue the download
+      void onControl(download, "continue");
     } else {
       // Pause the download
+      void onControl(download, "pause");
     }
   }
 
-  function cancel() {}
+  function cancel() {
+    void onControl(download, "cancel");
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
