@@ -1,4 +1,5 @@
 import { BrowserWindow } from "electron";
+import * as path from "path";
 
 export default class Main {
   static mainWindow: Electron.BrowserWindow | null;
@@ -16,10 +17,18 @@ export default class Main {
   }
 
   private static onReady() {
-    Main.mainWindow = new Main.BrowserWindow({ width: 800, height: 600 });
+    Main.mainWindow = new Main.BrowserWindow({
+      width: 800,
+      height: 600,
+      webPreferences: {
+        preload: path.join(import.meta.dirname, "preload.js"),
+        contextIsolation: true, // Secure your app
+        sandbox: false, // Enable default sandboxing
+      },
+    });
     if (Main.mainWindow) {
       if (process.env.ELECTRON_ENV === "development") {
-        Main.mainWindow.loadURL("http://localhost:3000");
+        Main.mainWindow.loadURL("http://localhost:8000");
       } else {
         Main.mainWindow.loadURL("file://" + import.meta.url + "/index.html");
       }

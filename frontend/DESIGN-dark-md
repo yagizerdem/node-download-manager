@@ -1,0 +1,184 @@
+---
+name: Premium Desktop Utility
+colors:
+  surface: "#051424"
+  surface-dim: "#051424"
+  surface-bright: "#2c3a4c"
+  surface-container-lowest: "#010f1f"
+  surface-container-low: "#0d1c2d"
+  surface-container: "#122131"
+  surface-container-high: "#1c2b3c"
+  surface-container-highest: "#273647"
+  on-surface: "#d4e4fa"
+  on-surface-variant: "#c6c6cd"
+  inverse-surface: "#d4e4fa"
+  inverse-on-surface: "#233143"
+  outline: "#909097"
+  outline-variant: "#46464c"
+  surface-tint: "#c0c6de"
+  primary: "#c0c6de"
+  on-primary: "#2a3043"
+  primary-container: "#020617"
+  on-primary-container: "#72778d"
+  inverse-primary: "#585e73"
+  secondary: "#adc6ff"
+  on-secondary: "#002e6a"
+  secondary-container: "#0566d9"
+  on-secondary-container: "#e6ecff"
+  tertiary: "#4edea3"
+  on-tertiary: "#003824"
+  tertiary-container: "#000904"
+  on-tertiary-container: "#00895e"
+  error: "#ffb4ab"
+  on-error: "#690005"
+  error-container: "#93000a"
+  on-error-container: "#ffdad6"
+  primary-fixed: "#dce1fb"
+  primary-fixed-dim: "#c0c6de"
+  on-primary-fixed: "#151b2d"
+  on-primary-fixed-variant: "#40465a"
+  secondary-fixed: "#d8e2ff"
+  secondary-fixed-dim: "#adc6ff"
+  on-secondary-fixed: "#001a42"
+  on-secondary-fixed-variant: "#004395"
+  tertiary-fixed: "#6ffbbe"
+  tertiary-fixed-dim: "#4edea3"
+  on-tertiary-fixed: "#002113"
+  on-tertiary-fixed-variant: "#005236"
+  background: "#051424"
+  on-background: "#d4e4fa"
+  surface-variant: "#273647"
+typography:
+  display-lg:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 40px
+    fontWeight: "700"
+    lineHeight: 48px
+    letterSpacing: -0.02em
+  headline-md:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 24px
+    fontWeight: "600"
+    lineHeight: 32px
+    letterSpacing: -0.01em
+  title-sm:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 18px
+    fontWeight: "600"
+    lineHeight: 24px
+  body-lg:
+    fontFamily: Inter
+    fontSize: 16px
+    fontWeight: "400"
+    lineHeight: 24px
+  body-md:
+    fontFamily: Inter
+    fontSize: 14px
+    fontWeight: "400"
+    lineHeight: 20px
+  label-sm:
+    fontFamily: Inter
+    fontSize: 12px
+    fontWeight: "500"
+    lineHeight: 16px
+    letterSpacing: 0.05em
+  mono-label:
+    fontFamily: Inter
+    fontSize: 13px
+    fontWeight: "600"
+    lineHeight: 18px
+rounded:
+  sm: 0.25rem
+  DEFAULT: 0.5rem
+  md: 0.75rem
+  lg: 1rem
+  xl: 1.5rem
+  full: 9999px
+spacing:
+  unit: 4px
+  xs: 4px
+  sm: 8px
+  md: 16px
+  lg: 24px
+  xl: 32px
+  sidebar_width: 260px
+  gutter: 20px
+---
+
+## Brand & Style
+
+The design system is engineered for a high-performance desktop environment, targeting power users who value precision, speed, and aesthetic sophistication. The visual narrative is built on the **Premium** identity—a fusion of modern minimalism and immersive glassmorphism.
+
+The UI evokes a sense of "Quiet Power." By utilizing a deep midnight foundation, the interface recedes into the background, allowing the active content (downloads, metrics, and progress) to take center stage. Interaction is defined by high-intent "Electric Blue" highlights, providing a sharp, technical contrast against the soft, translucent layers of the container surfaces.
+
+## Colors
+
+The palette is anchored by the seed color **#020617 (Midnight Blue)**, serving as the deep, obsidian-like base for the entire application.
+
+- **Primary Canvas:** The background uses the seed color, while nested containers utilize a semi-transparent "surface_glass" to create a sense of depth and hierarchy.
+- **Accents:** **Electric Blue (#3b82f6)** is reserved strictly for high-intent interactions, active progress states, and primary call-to-actions.
+- **Semantic Status:** High-contrast hues are used for immediate recognition: Emerald Green for completions, Vivid Red for failures, and Amber for paused/queued states. These colors should be used with low-opacity backgrounds (10-15%) to maintain the dark-mode aesthetic while ensuring the indicators pop.
+
+## Typography
+
+This design system employs a dual-font strategy. **Plus Jakarta Sans** is used for headlines and titles to provide a welcoming, premium feel with its slightly softer geometry. **Inter** serves as the utilitarian workhorse for body text, data points, and technical labels, ensuring maximum legibility at small sizes common in desktop list views.
+
+- **Headlines:** Use Plus Jakarta Sans for section headers and large display stats.
+- **Utility Text:** Download speeds, file paths, and metadata must use Inter for its neutral, high-legibility character.
+- **Monospaced Context:** For file sizes (e.g., 1.2 GB / 4.5 GB), use Inter with tabular-num settings to prevent horizontal jitter during active downloads.
+
+## Layout & Spacing
+
+The layout follows a **Fixed Sidebar + Fluid Content** model optimized for desktop precision.
+
+- **Sidebar:** A 260px fixed-width navigation rail on the left, utilizing a subtle backdrop blur (20px) to distinguish it from the main workspace.
+- **Main View:** Content is organized in a vertical list or grid view with a 20px gutter.
+- **Rhythm:** A 4px/8px base grid governs all padding and margins. List items for downloads should have a consistent 16px internal padding (md) to maintain a breathable, professional density.
+- **Alignment:** All technical data (speeds, ETA) should be right-aligned or anchored to a specific column in the list view to allow for easy scanning across multiple rows.
+
+## Elevation & Depth
+
+Depth in this design system is achieved through **Glassmorphism** and tonal layering rather than traditional heavy shadows.
+
+- **Layer 0 (Background):** Solid Midnight Blue (#020617).
+- **Layer 1 (Main Cards/Lists):** Semi-transparent surfaces (rgba(15, 23, 42, 0.6)) with a 1px border of `white / 0.1` and a backdrop blur of 12px.
+- **Layer 2 (Modals/Popovers):** Higher transparency background with a soft ambient shadow (0px 8px 32px rgba(0,0,0,0.4)) and a more pronounced Electric Blue border highlight (0.5px).
+- **Interactions:** Hovering over a list item should subtly increase the opacity of the glass layer and brighten the border-color, creating a "lifting" effect without changing physical layout.
+
+## Shapes
+
+The shape language is consistently **Rounded**, using a 0.5rem (8px) base radius.
+
+- **Small Components (Buttons/Inputs):** 8px radius.
+- **Container Elements (Cards/Sidebar):** 16px (rounded-lg) to create a soft, modern containerized look.
+- **Progress Bars:** Use fully rounded (pill-shaped) caps for the track and the indicator to contrast against the more geometric container shapes.
+
+## Components
+
+### Buttons & Controls
+
+- **Primary Action:** Solid Electric Blue background with white text. High-contrast, 8px roundedness.
+- **Ghost/Utility:** Transparent background with 1px border (`white / 0.2`). Used for "Retry," "Cancel," and "Folder" icons.
+- **Icons:** Use thin-stroke (1.5px) Lucide-style icons. Icons should be sized at 20x20px for standard actions.
+
+### Progress Bars
+
+- **Track:** 6px height, dark slate background.
+- **Indicator:** Electric Blue gradient or solid. For "Completed" states, the bar transitions to Emerald Green.
+- **Activity:** For active downloads, a subtle "pulse" animation on the progress bar head indicates movement.
+
+### Download List Items
+
+- **Structure:** Left-aligned file icon (Lucide "File" variants), followed by File Name (Title-sm), then a sub-row for Metadata (Body-md). Progress bar is positioned at the bottom of the item or as a separate column.
+- **States:**
+  - _Active:_ Electric Blue accents, visible speed/ETA.
+  - _Failed:_ Red text for error message, "Retry" button appears on hover.
+  - _Paused:_ Grayscale metadata, "Resume" icon clearly visible.
+
+### Sidebar Navigation
+
+- **Items:** Vertical list with 12px vertical spacing. Active state indicated by a 3px thick Electric Blue vertical bar on the left edge and a low-opacity blue background tint on the item itself.
+
+### Status Chips
+
+- Small, rounded-full badges used to categorize downloads (e.g., "ISO", "Video", "App"). Use neutral slate backgrounds with white text to keep the UI from becoming too "busy."
