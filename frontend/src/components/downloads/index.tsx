@@ -58,7 +58,7 @@ export default function Page() {
       },
       {} as Record<string, DownloadStatus>,
     );
-    setActiveDownloads(dowloadStatusMap);
+    setActiveDownloads((prev) => ({ ...prev, ...dowloadStatusMap }));
     setShowActiveDownloadsFooter(true);
 
     for (const value of values) {
@@ -183,6 +183,7 @@ export default function Page() {
         const newRecord = insertResponse.data;
         if (newRecord) {
           setRecentDownloads((prev) => [...prev, newRecord]);
+          console.log(newRecord);
         }
       },
     );

@@ -6,7 +6,7 @@ export class DbController {
     dto: Omit<DownloadDTO, "id" | "created_at" | "updated_at">,
   ): Promise<Response<DownloadDTO | void>> {
     try {
-      const inserted: DownloadDTO = await db
+      const [inserted]: DownloadDTO[] = await db
         .insert({
           file_name: dto.file_name,
           mime_type: dto.mime_type,
@@ -20,8 +20,7 @@ export class DbController {
           url: dto.url,
         })
         .into("downloads")
-        .returning("*")
-        .first();
+        .returning("*");
 
       return {
         code: "SUCCESS",
